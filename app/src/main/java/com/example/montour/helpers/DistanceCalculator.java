@@ -6,6 +6,7 @@ import android.util.Log;
 import com.example.montour.R;
 import com.example.montour.callbacks.IMonCallback;
 import com.example.montour.callbacks.IOnDistanceCalculated;
+import com.example.montour.models.CalculatedDistances;
 import com.example.montour.models.MonumentItem;
 import com.google.maps.errors.ApiException;
 import com.mapbox.api.directions.v5.DirectionsCriteria;
@@ -16,6 +17,8 @@ import com.mapbox.geojson.Point;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -27,6 +30,7 @@ public class DistanceCalculator {
     private double maxDistance = 0;
     private MonumentItem[] orderedMonuments;
     private ArrayList<MonumentItem> monumentItems;
+    private CalculatedDistances calculatedDistances;
 
     private MonumentItem furthest;
 
@@ -35,7 +39,7 @@ public class DistanceCalculator {
         this.listener = listener;
         this.context = context;
         this.monumentItems = items;
-
+        this.calculatedDistances = new CalculatedDistances();
 
     }
 
@@ -43,64 +47,52 @@ public class DistanceCalculator {
         this.calculateDistanceFromFirstItem();
     }
 
-    //The monument that is the most far away is placed in the middle so that the other monuments are on the way to and back.
-    public void getFurthestMonument(MonumentItem item, Double distance){
-        if(this.maxDistance < distance){
-            this.maxDistance = distance;
-            this.furthest = item;
-        }
-    }
 
-    public void orderMonuments(){
-        int half = this.monumentItems.size()/2;
-        this.monumentItems.remove(this.furthest);
-        this.monumentItems.add(half, furthest);
-        this.listener.distanceCalculated(this.monumentItems);
-    }
+
 
     public void calculateDistanceFromFirstItem(){
-            for(int i = 1; i < this.monumentItems.size(); i++){
-                try {
+        try {
 
-                    MonumentItem destination = this.monumentItems.get(i);
-                    this.calculateDistance(this.monumentItems.get(0), destination, new IMonCallback() {
-                        @Override
-                        public void onSuccess(Object obj) {
-                            Double distance = (Double)obj;
-                           getFurthestMonument(destination, distance);
-                        }
-
-                        @Override
-                        public void onError(Object obj) {
-
-                        }
-
-                    });
-
-
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ApiException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+            this.calculateDistance(new IMonCallback() {
+                @Override
+                public void onSuccess(Object obj) {
+                    //Double distance = (Double)obj;
+                    //calculatedDistances.addDestinationWithDistance(destination, distance);
+                    listener.distanceCalculated(calculatedDistances.getOrderedMonuments());
                 }
 
-            }
+                @Override
+                public void onError(Object obj) {
+
+                }
+
+            });
+
+
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ApiException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
 
 
 
     }
 
-    public void calculateDistance(MonumentItem start, MonumentItem destination, IMonCallback callback) throws InterruptedException, ApiException, IOException {
-        Point pointStart = Point.fromLngLat(start.getLatLong().longitude, start.getLatLong().latitude);
-        Point pointDest = Point.fromLngLat(destination.getLatLong().longitude, destination.getLatLong().latitude);
+    public void calculateDistance( IMonCallback callback) throws InterruptedException, ApiException, IOException {
         ArrayList<Point> points = new ArrayList<>();
-        points.add(pointStart);
-        points.add(pointDest);
+        this.monumentItems.forEach((MonumentItem item ) -> {
+            Point point = Point.fromLngLat(item.getLatLong().longitude, item.getLatLong().latitude);
+            points.add(point);
+            Log.v("calculateDistance", "added point => "+point.toString());
+        });
 
+        //todo: ipv van per duration een aparte callback, alle durations in een keer doorsturen en ordenen, of toevoegen aan een list en deze zo dorgeveni
 
         MatrixResponse.Builder matrixResponse;
 
@@ -113,12 +105,14 @@ public class DistanceCalculator {
             @Override
             public void onResponse(Call<MatrixResponse> call,
                                    Response<MatrixResponse> response) {
-                Log.v("distCalcer", "Distance between "+start.getMyName()+" and "+destination.getMyName());
-               Double duration = response.body().durations().get(0)[1];
-                Log.v("distCalcer", duration.toString());
-                //calculatedDurations = MatrixResponse.builder(response.);
-                callback.onSuccess(duration);
 
+                Log.v("distCalcer", "all distances: "+ response.body().durations().get(0));
+                //calculatedDurations = MatrixResponse.builder(response.);
+                Double[] distancesResponse = response.body().durations().get(0);
+
+                calculatedDistances.createOrderedMonumentList(monumentItems, distancesResponse);
+                callback.onSuccess(calculatedDistances.getOrderedMonuments());
+                //calculatedDistances.addDestinationWithDistance(destination, duration);
 
             }
 
