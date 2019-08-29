@@ -53,7 +53,7 @@ public class CalculatedDistances {
 
         }
 
-        this.orderedMonuments.add(this.orderedMonuments.size()/2, furthest);
+        this.orderedMonuments.add((this.orderedMonuments.size()+1)/2, furthest);
 
     }
 

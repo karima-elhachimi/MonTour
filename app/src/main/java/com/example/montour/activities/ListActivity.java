@@ -32,9 +32,9 @@ public class ListActivity extends AppCompatActivity implements IOnMonumentData, 
     private LinearLayoutManager layoutManager;
     private Intent outgoingIntent;
     private Button goToMapButton;
+    private Button goToRoutes;
     private SQLiteDatabase db;
     private MonumentSelection selection;
-    public boolean selected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +44,7 @@ public class ListActivity extends AppCompatActivity implements IOnMonumentData, 
         this.layoutManager = new LinearLayoutManager(this);
         this.recyclerView.setLayoutManager(this.layoutManager);
         this.goToMapButton = (Button)findViewById(R.id.go_to_map);
+        this.goToRoutes = (Button)findViewById(R.id.go_to_routes_btn);
         this.selection = MonumentSelection.getInstance();
 
         this.manager = MonumentManager.getInstance(this, this);
@@ -72,8 +73,22 @@ public class ListActivity extends AppCompatActivity implements IOnMonumentData, 
         this.goToMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               outgoingIntent = new Intent(ListActivity.this, MapsActivity.class);
-               startActivity(outgoingIntent);
+                outgoingIntent = new Intent(ListActivity.this, MapsActivity.class);
+                startActivity(outgoingIntent);
+            }
+        });
+
+        this.goToRoutes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(selection.getSelectedMonuments().size() > 2){
+                    outgoingIntent = new Intent(ListActivity.this, MapRouteActivity.class);
+                    startActivity(outgoingIntent);
+
+                } else {
+                    Toast.makeText(ListActivity.this, "Add more monuments to your selection first.", Toast.LENGTH_LONG).show();
+                }
+
             }
         });
     }

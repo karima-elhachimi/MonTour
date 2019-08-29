@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import com.example.montour.R;
@@ -13,13 +14,16 @@ import com.example.montour.callbacks.IOnDistanceCalculated;
 import com.example.montour.callbacks.IOnMonumentData;
 import com.example.montour.callbacks.IOnToggleClicked;
 import com.example.montour.helpers.DistanceCalculator;
+import com.example.montour.helpers.PolyCreator;
 import com.example.montour.models.MonumentItem;
 import com.example.montour.models.MonumentListAdapter;
 import com.example.montour.models.MonumentSelection;
-import com.google.android.gms.maps.model.PolylineOptions;
+
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.PolygonOptions;
+import com.mapbox.mapboxsdk.annotations.PolylineOptions;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -40,6 +44,7 @@ public class MapRouteActivity extends AppCompatActivity implements IOnDistanceCa
     private RecyclerView.LayoutManager layoutManager;
 
     private DistanceCalculator distanceCalculator;
+    private ArrayList<MonumentItem> sortedItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,13 +80,13 @@ public class MapRouteActivity extends AppCompatActivity implements IOnDistanceCa
 
     }*/ //google maps changed to mapbox
 
-    public PolylineOptions addAllPolylines(ArrayList<MonumentItem> items){
-        PolylineOptions polylines = new PolylineOptions();
-        for(MonumentItem item : items){
-            polylines.add(item.getLatLong());
-        }
+    public void addAllPolylines(ArrayList<MonumentItem> items){
+        PolyCreator creator = new PolyCreator();
+        this.mapbox.addPolyline(new PolylineOptions()
+                .addAll(creator.getPolygonLatLngList(items))
+                .color(Color.parseColor("#3bb2d0"))
+                .width(2));
 
-        return polylines;
     }
 
     public void initializeListOfSelectedMonuments(){
@@ -125,6 +130,8 @@ public class MapRouteActivity extends AppCompatActivity implements IOnDistanceCa
 
     @Override
     public void distanceCalculated(ArrayList<MonumentItem> items) {
+        this.sortedItems = items;
+        this.addAllPolylines(items);
         this.monumentsRv = (RecyclerView) findViewById(R.id.route_result_rv);
         this.layoutManager = new LinearLayoutManager(this);
         this.monumentsRv.setLayoutManager(this.layoutManager);

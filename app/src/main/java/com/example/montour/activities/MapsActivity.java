@@ -66,13 +66,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
-
-
-
-
-
-
-
     }
 
     private void createMarkers(ArrayList<MonumentItem> monumentList) {

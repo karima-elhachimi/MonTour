@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class MonumentSelection {
     private static MonumentSelection instance = null;
 
-    private static ArrayList<MonumentItem> monuments;
+    private ArrayList<MonumentItem> monuments;
     private MonumentSelection(){
 
     }
@@ -23,6 +23,10 @@ public class MonumentSelection {
 
     public ArrayList<MonumentItem> getSelectedMonuments(){
         return this.monuments;
+    }
+
+    public void clearSelection(){
+        this.monuments.clear();
     }
 
 
