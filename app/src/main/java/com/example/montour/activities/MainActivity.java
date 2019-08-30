@@ -12,6 +12,7 @@ import android.widget.Button;
 import com.example.montour.R;
 import com.example.montour.callbacks.IOnMonumentData;
 import com.example.montour.helpers.MonumentManager;
+import com.example.montour.models.MonumentSelection;
 
 public class MainActivity extends AppCompatActivity implements IOnMonumentData {
     private MonumentManager manager;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements IOnMonumentData {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        MonumentSelection.clearSelection();
         this.db.close();
     }
 }

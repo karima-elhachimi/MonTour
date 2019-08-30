@@ -5,9 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
 
 import com.example.montour.R;
 import com.example.montour.callbacks.IOnDistanceCalculated;
@@ -19,6 +22,7 @@ import com.example.montour.models.MonumentItem;
 import com.example.montour.models.MonumentListAdapter;
 import com.example.montour.models.MonumentSelection;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -46,6 +50,9 @@ public class MapRouteActivity extends AppCompatActivity implements IOnDistanceCa
     private DistanceCalculator distanceCalculator;
     private ArrayList<MonumentItem> sortedItems;
 
+    private FloatingActionButton redoFab;
+    private Intent outgoingIntent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,12 +63,15 @@ public class MapRouteActivity extends AppCompatActivity implements IOnDistanceCa
                 .findFragmentById(R.id.map_routes);
         mapFragment.getMapAsync(this);*/
         this.map = (MapView)findViewById(R.id.map_routes);
+        this.redoFab = (FloatingActionButton) findViewById(R.id.redo_fab);
 
         this.map.onCreate(savedInstanceState);
         this.distanceCalculator = new DistanceCalculator(this,this, this.selection.getSelectedMonuments() );
         this.distanceCalculator.orderMonumentsByDistance();
 
         this.map.getMapAsync(this);
+        this.setOnClickListeners();
+
 ;
     }
 
@@ -89,7 +99,17 @@ public class MapRouteActivity extends AppCompatActivity implements IOnDistanceCa
 
     }
 
-    public void initializeListOfSelectedMonuments(){
+    public void setOnClickListeners(){
+        this.redoFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MapRouteActivity.this, "Removing selected items and returning to list.", Toast.LENGTH_LONG).show();
+                selection.clearSelection();
+                outgoingIntent = new Intent(MapRouteActivity.this, ListActivity.class);
+                startActivity(outgoingIntent);
+
+            }
+        });
 
 
     }
