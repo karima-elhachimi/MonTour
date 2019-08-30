@@ -26,8 +26,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.annotations.PolygonOptions;
 import com.mapbox.mapboxsdk.annotations.PolylineOptions;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -99,6 +101,14 @@ public class MapRouteActivity extends AppCompatActivity implements IOnDistanceCa
 
     }
 
+    public void addMarkers(ArrayList<MonumentItem> items){
+        items.forEach((MonumentItem item)-> {
+            mapbox.addMarker(new MarkerOptions()
+                    .position(new LatLng(item.getLatLong().latitude, item.getLatLong().longitude))
+                    .title(item.getMyName()));
+        });
+    }
+
     public void setOnClickListeners(){
         this.redoFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,18 +142,10 @@ public class MapRouteActivity extends AppCompatActivity implements IOnDistanceCa
                         BitmapFactory.decodeResource(
                                 MapRouteActivity.this.getResources(), R.drawable.mapbox_marker_icon_default));
 
-                GeoJsonSource geoJsonSource = new GeoJsonSource("source-id", Feature.fromGeometry(
-                        Point.fromLngLat(-87.679, 41.885)));
-                style.addSource(geoJsonSource);
-
-                SymbolLayer symbolLayer = new SymbolLayer("layer-id", "source-id");
-                symbolLayer.withProperties(
-                        PropertyFactory.iconImage("marker-icon-id")
-                );
-                style.addLayer(symbolLayer);
-
             }
         });
+
+
 
     }
 
@@ -152,6 +154,7 @@ public class MapRouteActivity extends AppCompatActivity implements IOnDistanceCa
     public void distanceCalculated(ArrayList<MonumentItem> items) {
         this.sortedItems = items;
         this.addAllPolylines(items);
+        this.addMarkers(items);
         this.monumentsRv = (RecyclerView) findViewById(R.id.route_result_rv);
         this.layoutManager = new LinearLayoutManager(this);
         this.monumentsRv.setLayoutManager(this.layoutManager);
