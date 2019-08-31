@@ -48,8 +48,8 @@ public class MonumentSelection {
         this.monuments.remove(item);
     }
 
-    public boolean isMonumentInList(MonumentItem item) {
-        return this.monuments.contains(item);
+    public static boolean isMonumentInList(MonumentItem item) {
+        return monuments.contains(item);
     }
 
     public void calculateRoute(){}

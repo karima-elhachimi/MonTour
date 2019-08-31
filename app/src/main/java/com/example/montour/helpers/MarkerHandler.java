@@ -1,9 +1,14 @@
 package com.example.montour.helpers;
 
 import android.graphics.Color;
+import android.util.Log;
 
+import com.example.montour.callbacks.IOnGoogleMarkerClicked;
 import com.example.montour.models.MonumentItem;
+import com.example.montour.models.MonumentSelection;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Marker;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -45,6 +50,39 @@ public class MarkerHandler {
         for(MonumentItem item : items) {
             com.google.android.gms.maps.model.MarkerOptions markerOptions = new com.google.android.gms.maps.model.MarkerOptions().position(item.getLatLong()).title(item.getMyName());
             map.addMarker(markerOptions).setTag(item);
+        }
+
+    }
+
+
+    public void googleMarkerIsClicked(GoogleMap map, IOnGoogleMarkerClicked callback){
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Log.v("marker clicker" , marker.getTitle());
+                callback.handleClickedMarker(marker);
+                return false;
+            }
+        });
+    }
+
+
+
+    private void toggleGoogleMarkerSelection(MonumentItem item, com.google.android.gms.maps.model.MarkerOptions marker){
+        if(MonumentSelection.isMonumentInList(item)) {
+            marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        } else {
+            marker.icon(BitmapDescriptorFactory.defaultMarker());
+        }
+
+    }
+
+    private void toggleGoogleMarkerSelection(MonumentItem item, Marker marker){
+        if(MonumentSelection.isMonumentInList(item)) {
+            marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        } else {
+            marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+
         }
 
     }

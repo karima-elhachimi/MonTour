@@ -1,5 +1,6 @@
 package com.example.montour.activities;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import com.example.montour.R;
 import com.example.montour.callbacks.IOnMonumentData;
+import com.example.montour.helpers.MapController;
 import com.example.montour.helpers.MonumentManager;
 import com.example.montour.models.MonumentItem;
 import com.example.montour.models.MonumentSelection;
@@ -30,14 +32,19 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.maps.MapView;
+import com.mapbox.mapboxsdk.maps.MapboxMap;
 
 import java.util.ArrayList;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, IOnMonumentData{
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, IOnMonumentData, com.mapbox.mapboxsdk.maps.OnMapReadyCallback {
 
     private MonumentSelection selection;
     private ArrayList<MarkerOptions> allMarkers = new ArrayList<>();
-    private GoogleMap mMap;
+    private MapboxMap mMap;
+    private MapView mapView;
+    private MapController mapCtrl;
     private MonumentManager manager;
     private LatLng center = new LatLng(new Double("51.219411"), new Double("4.416129"));
     private Location myLocation;
@@ -50,10 +57,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        Mapbox.getInstance(this, "pk.eyJ1Ijoia2FyaW1hZWwiLCJhIjoiY2p6c2pwc3RkMHpwNjNuczFsMTR4ZWRhZCJ9.jgfZbN2VPth7Hi_eJYq3-A");
+        this.mapView = (MapView)findViewById(R.id.map);
+        this.mapView.onCreate(savedInstanceState);
+        this.mapView.getMapAsync(this);
+        this.mapCtrl = new MapController(this);
+
         this.manager = MonumentManager.getInstance(this, this);
         this.selection = MonumentSelection.getInstance();
 
@@ -89,29 +98,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onPostResume();
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.clear();
-        this.checkLocationPermission();
 
-       // mMap.setOnMarkerClickListener(this);
-        this.markerIsClicked();
-
-
-        this.addMonumentsToMap();
-
-
-    }
 
 
 
@@ -192,6 +179,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             marker.icon(BitmapDescriptorFactory.defaultMarker());
         }
 
+
+
     }
     private void toggleMarkerSelection(MonumentItem item, Marker marker){
         if(this.selection.isMonumentInList(item)) {
@@ -240,5 +229,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return false;
             }
         });
+    }
+
+    @Override
+    public void onMapReady(@NonNull MapboxMap mapboxMap) {
+        this.mMap = mapboxMap;
+        this.mapCtrl.afterOnMapReady(this.mMap);
+
     }
 }
