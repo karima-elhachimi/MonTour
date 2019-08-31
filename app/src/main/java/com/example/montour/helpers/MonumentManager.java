@@ -27,7 +27,7 @@ public class MonumentManager {
 
     private static MonumentManager instance = null;
     private ArrayList<MonumentItem> mMonumentList = new ArrayList<>();
-    private String url = "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek3/MapServer/207/query?where=Postcode%20%3D%20'2060'&outFields=OBJECTID,Naam,Straatnaam,Huisnr,District,Postcode&outSR=4326&f=json";
+    private String url = "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek3/MapServer/207/query?where=Postcode%20%3D%20%272060%27%20OR%20Postcode%20%3D%20%272000%27%20OR%20Postcode%20%3D%20%272020%27%20OR%20Postcode%20%3D%20%272140%27%20OR%20Postcode%20%3D%20%272600%27&outFields=OBJECTID,Naam,Straatnaam,Huisnr,District,Postcode&outSR=4326&f=json";
     private static RequestQueue queue;
     private static MonumentsOpenHelper dbHelper;
 
