@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:mapbox_cameraTargetLat="51.219411"
         app:mapbox_cameraTargetLng="4.416129"
-        app:mapbox_cameraZoom="11">
+        app:mapbox_cameraZoom="11"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/go_to_route"

@@ -52,6 +52,8 @@ public class MonumentSelection {
         return monuments.contains(item);
     }
 
+
+
     public void calculateRoute(){}
 
     public void createMarkersFromRoute(){

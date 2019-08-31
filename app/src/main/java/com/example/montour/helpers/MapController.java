@@ -49,6 +49,7 @@ public class MapController {
                 .position(new LatLng(items.get(0).getLatLong().latitude, items.get(0).getLatLong().longitude))
                 .title(items.get(0).getMyName()));
 
+
     }
 
     public void addAllPolylines(MapboxMap map, ArrayList<MonumentItem> items){
